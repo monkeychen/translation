@@ -113,7 +113,7 @@ ZooKeeper可靠性依赖于两个基本的假设：
 
 为了最大可能的保证上述两个前提假设能够成立，这里有几个点需要考虑。一些是关于跨服务器（节点之间）需求的，而另一些是关于集群中每个节点服务器的考虑
 
-**待续**
+**待续...**
 
 [1]: https://zookeeper.apache.org/doc/r3.4.10/zookeeperStarted.html
 [2]: http://java.sun.com/javase/downloads/index.jsp
