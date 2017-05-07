@@ -1,5 +1,4 @@
 # ZooKeeper Administrator's Guide中文版
-@(存档)[zookeeper]
 
 > 本文档主要介绍ZooKeeper部署及日常管理
 
