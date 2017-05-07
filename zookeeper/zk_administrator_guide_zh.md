@@ -1,9 +1,5 @@
-title: ZooKeeper Administrator's Guide中文版
-date: 2017-05-07 19:03:24
-tags: [ZooKeeper]
-categories: [Java]
-keywords: [ZooKeeper]
----
+# ZooKeeper administrator's guide中文版
+
 > 本文档主要介绍ZooKeeper部署及日常管理
 
 ## 安装部署
