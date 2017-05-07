@@ -15,10 +15,10 @@
 #### 支持的OS平台
 ZooKeeper框架由多个组件组成，有的组件支持全部平台，而还有一些组件只支持部分平台，详细支持情况如下：
 
-* **Client：**它是一个`Java`客户端连接库，上层应用系统通过它连接至ZooKeeper集群。
-* **Server：**它是运行在ZooKeeper集群节点上的一个`Java`后台服务程序。
-* **Native Client：**它是一个用`C`语言实现的客户端连接库，其与`Java`客户端库一样，上层应用（非`Java`实现）通过它连接至ZooKeeper集群。
-* **Contrib：**它是指多个可选的扩展组件。
+* Client：它是一个`Java`客户端连接库，上层应用系统通过它连接至ZooKeeper集群。
+* Server：它是运行在ZooKeeper集群节点上的一个`Java`后台服务程序。
+* Native Client：它是一个用`C`语言实现的客户端连接库，其与`Java`客户端库一样，上层应用（非`Java`实现）通过它连接至ZooKeeper集群。
+* Contrib：它是指多个可选的扩展组件。
 
 |操作系统|Client|Server|Native Client|Contrib|
 |:-|:-:|:-:|:-:|:-:|
