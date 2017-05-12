@@ -1,7 +1,7 @@
 # ZooKeeper Administrator's Guide中文版
-@(存档)[zookeeper]
 
 > 本文档主要介绍ZooKeeper部署及日常管理
+> 欢迎访问[我的博客](http://cloudnoter.com)
 
 ## 安装部署
 本章节包含与ZooKeeper部署有关的内容，具体来说包含下面三部分内容：
@@ -444,3 +444,4 @@ For best results, take note of the following list of good Zookeeper practices: F
 [6]: https://zookeeper.apache.org/doc/r3.4.10/api/index.html
 [7]: http://logging.apache.org/log4j/1.2/manual.html#defaultInit
 [8]: http://zookeeper.apache.org/doc/r3.4.10/zookeeperHierarchicalQuorums.html
+
