@@ -1,7 +1,8 @@
 # ZooKeeper Administrator's Guide中文版
+@(存档)[zookeeper]
 
 > 本文档主要介绍ZooKeeper部署及日常管理
-> 欢迎访问[我的博客](http://cloudnoter.com)
+> 转载请注明出处：[cloudnoter.com](http://cloudnoter.com)
 
 ## 安装部署
 本章节包含与ZooKeeper部署有关的内容，具体来说包含下面三部分内容：
@@ -325,35 +326,36 @@ org.apache.zookeeper.server.auth.DigestAuthenticationProvider can be used to gen
 When authenticating to a ZooKeeper server (from a ZooKeeper client) pass a scheme of "digest" and authdata of `super:<password>`. Note that digest auth passes the authdata in plaintext to the server, it would be prudent to use this authentication method only on localhost (not over the network) or over an encrypted connection.
 
 ### <span id="2.11"></span>ZK命令：4个字母
-ZooKeeper responds to a small set of commands. Each command is composed of four letters. You issue the commands to ZooKeeper via telnet or nc, at the client port. Three of the more interesting commands: "stat" gives some general information about the server and connected clients, while "srvr" and "cons" give extended details on server and connections respectively.
+ZooKeeper可以响应一个小规模的命令集。命令集中的每个命令由4个字母组成。
+你可以通过nc或telnet向ZooKeeper服务器的客户端监听端口发送命令。其中有三个命令是比较令人感兴趣的：`stat`会输出与服务器、已连接的客户端相关的基本信息；`srvr`与`cons`会输出服务器与各个连接的进一步的详细信息。
 
 > **conf**
-New in 3.3.0: Print details about serving configuration.
+V3.3.0版引入: 打印ZooKeeper配置的详细信息。
 **cons**
-New in 3.3.0: List full connection/session details for all clients connected to this server. Includes information on numbers of packets received/sent, session id, operation latencies, last operation performed, etc...
+V3.3.0版引入: 列出所有连接至本服务器的客户端连接/会话的详细信息。包括收发数据包数量、会话ID、操作时延（响应时间）、上一次执行的操作等信息。
 **crst**
-New in 3.3.0: Reset connection/session statistics for all connections.
+V3.3.0版引入: 重置所有连接/会话的统计数据。
 **dump**
 Lists the outstanding sessions and ephemeral nodes. This only works on the leader.
 **envi**
-Print details about serving environment
+打印ZK服务环境信息。
 **ruok**
-Tests if server is running in a non-error state. The server will respond with imok if it is running. Otherwise it will not respond at all. 
-A response of "imok" does not necessarily indicate that the server has joined the quorum, just that the server process is active and bound to the specified client port. Use "stat" for details on state wrt quorum and client connection information.
+测试ZK服务器是否处于正常运行状态。若服务器正常运行，则会返回imok响应；反之则压根不会返回任何响应信息。
+`imok`响应并不意味着该服务器已经加入ZK法定成员中，而仅代表服务器处于活动状态且与某个特定的客户端口建立了绑定关系。你可以使用`stat`命令查看该服务器是否加入法定投票成员及客户端连接等详细状态信息。
 **srst**
-Reset server statistics.
+重置服务器统计数据。
 **srvr**
-New in 3.3.0: Lists full details for the server.
+V3.3.0版引入: 列出服务器的完整的详细信息。
 **stat**
-Lists brief details for the server and connected clients.
+列出服务器及已连接至该服务器的客户端的简要信息。
 **wchs**
-New in 3.3.0: Lists brief information on watches for the server.
+V3.3.0版引入: 列出watch该服务器的客户端的简要信息。
 **wchc**
-New in 3.3.0: Lists detailed information on watches for the server, by session. This outputs a list of sessions(connections) with associated watches (paths). Note, depending on the number of watches this operation may be expensive (ie impact server performance), use it carefully.
+V3.3.0版引入: 从session视角列出watch该服务器的客户端的详细信息。该命令将输出session(connection)所watch的路径的相关信息。有一点要注意下，执行这个命令的性能损耗与watch的数量有关，请谨慎使用。
 **wchp**
-New in 3.3.0: Lists detailed information on watches for the server, by path. This outputs a list of paths (znodes) with associated sessions. Note, depending on the number of watches this operation may be expensive (ie impact server performance), use it carefully.
+V3.3.0版引入: 从path视角列出watch该path的相关客户端session。有一点要注意下，执行这个命令的性能损耗与watch的数量有关，请谨慎使用。
 **mntr**
-New in 3.4.0: Outputs a list of variables that could be used for monitoring the health of the cluster.
+V3.4.0版引入: 输出可用于监控集群健康状态的参数列表。
 
 ```
 $ echo mntr | nc localhost 2185
@@ -390,33 +392,34 @@ imok
 
 
 ### <span id="2.12"></span>数据文件管理
-ZooKeeper stores its data in a data directory and its transaction log in a transaction log directory. By default these two directories are the same. The server can (and should) be configured to store the transaction log files in a separate directory than the data files. Throughput increases and latency decreases when transaction logs reside on a dedicated log devices.
+
+ZK将其业务数据保存在数据目录，将其事务日志保存在事务日志目录。默认情况下数据目录与事务日志目录是相同的。服务器可以（应该）将事务日志目录与数据目录分开存储。如果将事务日志存储在专用的日志设备上，则吞吐量上升的同时，时延还会下降。
 
 #### 数据目录
-This directory has two files in it:
+这个目录下包含两个文件:
 
-* myid - contains a single integer in human readable ASCII text that represents the server id.
-* `snapshot.<zxid>` - holds the fuzzy snapshot of a data tree.
+* myid - 包含一个单独的以ASCII形式存储的整数值，这个值代表其所在服务器的ID。
+* `snapshot.<zxid>` - 这个文件保存有数据树结构的模糊快照。
 
-Each ZooKeeper server has a unique id. This id is used in two places: the myid file and the configuration file. The myid file identifies the server that corresponds to the given data directory. The configuration file lists the contact information for each server identified by its server id. When a ZooKeeper server instance starts, it reads its id from the myid file and then, using that id, reads from the configuration file, looking up the port on which it should listen.
+每个ZooKeeper服务器都有一个唯一标识ID，这个ID用于两个地方：`myid`文件与配置文件。位于数据目录下的`myid`文件用于标识ZK服务器。配置文件`zoo.cfg`中列出了集群节点间相互通信的配置信息（IP或主机名、监听端口等），每行配置信息通过Server ID来标识。当ZooKeeper服务实例启动时，其会从`myid`文件中获取它的标识ID，然后再从配置文件`zoo.cfg`中读取匹配该ID的服务器配置信息，根据配置信息启动相关端口的监听服务。
 
 The snapshot files stored in the data directory are fuzzy snapshots in the sense that during the time the ZooKeeper server is taking the snapshot, updates are occurring to the data tree. The suffix of the snapshot file names is the zxid, the ZooKeeper transaction id, of the last committed transaction at the start of the snapshot. Thus, the snapshot includes a subset of the updates to the data tree that occurred while the snapshot was in process. The snapshot, then, may not correspond to any data tree that actually existed, and for this reason we refer to it as a fuzzy snapshot. Still, ZooKeeper can recover using this snapshot because it takes advantage of the idempotent nature of its updates. By replaying the transaction log against fuzzy snapshots ZooKeeper gets the state of the system at the end of the log.
 
 #### 日志目录
-The Log Directory contains the ZooKeeper transaction logs. Before any update takes place, ZooKeeper ensures that the transaction that represents the update is written to non-volatile storage. A new log file is started each time a snapshot is begun. The log file's suffix is the first zxid written to that log.
+日志目录包含ZK的事务日志。当任何更新生效前，ZK会确保代表该更新的事务会被写入稳定的存储中。每创建一次快照，会创建一个新的事务日志文件，该日志文件名的后缀为第一个写入该文件的事务日志的zxid。
 
 #### 文件管理
-The format of snapshot and log files does not change between standalone ZooKeeper servers and different configurations of replicated ZooKeeper servers. Therefore, you can pull these files from a running replicated ZooKeeper server to a development machine with a standalone ZooKeeper server for trouble shooting.
+单机模式与集群模式下的快照与日志文件的格式是一样的，因此你可以从集群复制模式环境中获取相关快照及日志文件到单机开发环境中进行问题排查。
 
-Using older log and snapshot files, you can look at the previous state of ZooKeeper servers and even restore that state. The LogFormatter class allows an administrator to look at the transactions in a log.
+通过使用旧的日志及快照文件，你可以分析ZK服务器以前的状态甚至可以恢复至该旧状态。`LogFormatter`类允许管理员分析一个日志中的相关事务。
 
-The ZooKeeper server creates snapshot and log files, but never deletes them. The retention policy of the data and log files is implemented outside of the ZooKeeper server. The serveritself only needs the latest complete fuzzy snapshot and the log files from the start of that snapshot. See the maintenance section in this document for more details on setting a retention policy and maintenance of ZooKeeper storage.
+ZK负责快照及日志的创建，但其不会删除这些文件。数据及日志文件的保留策略由外部应用实现。服务器自身只需要最近一次的模糊快照以及从开始创建该快照以来的事务日志文件即可。可以查看“[维护](#2.5)”章节来查看更详细的与保留策略相关的配置信息。
 
-> The data stored in these files is not encrypted. In the case of storing sensitive data in ZooKeeper,necessary measures need to be taken to prevent unauthorized access. Such measures are external to ZooKeeper (e.g., control access to the files) and depend on the individual settings in which it is being deployed.
+> 存储在这些文件中的数据是未加密的。在存储敏感数据的场景下，有必要采取一定的措施来阻止未授权访问请求。这些预防措施都不属于ZK的功能范围，因此相关配置信息也是独立的，本文档不多做介绍。
 
 ### <span id="2.13"></span>避免踩坑
 
-Here are some common problems you can avoid by configuring ZooKeeper correctly:
+下面是几个在配置ZK服务时经常碰到的问题及解决办法：
 
 **服务器列表数据不一致**
 The list of ZooKeeper servers used by the clients must match the list of ZooKeeper servers that each ZooKeeper server has. Things work okay if the client list is a subset of the real list, but things will really act strange if clients have a list of ZooKeeper servers that are in different ZooKeeper clusters. Also, the server lists in each Zookeeper server configuration file should be consistent with one another.
@@ -441,6 +444,9 @@ For best results, take note of the following list of good Zookeeper practices: F
 [3]: http://zookeeper.apache.org/releases.html
 [4]: https://zookeeper.apache.org/doc/r3.4.10/zookeeperJMX.html
 [5]: https://zookeeper.apache.org/doc/r3.4.10/zookeeperProgrammers.html
+[6]: https://zookeeper.apache.org/doc/r3.4.10/api/index.html
+[7]: http://logging.apache.org/log4j/1.2/manual.html#defaultInit
+[8]: http://zookeeper.apache.org/doc/r3.4.10/zookeeperHierarchicalQuorums.htmlerProgrammers.html
 [6]: https://zookeeper.apache.org/doc/r3.4.10/api/index.html
 [7]: http://logging.apache.org/log4j/1.2/manual.html#defaultInit
 [8]: http://zookeeper.apache.org/doc/r3.4.10/zookeeperHierarchicalQuorums.html
